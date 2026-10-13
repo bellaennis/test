@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fff1f6">
+<title>Cozy Study Bunny</title>
+<style>
+:root{--pink:#ffb8d0;--pink2:#ffe3ed;--cream:#fffaf5;--ink:#4c3b46;--purple:#cbbcff;--green:#ccebd8}
+*{box-sizing:border-box}
+body{margin:0;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;background:linear-gradient(135deg,#fff1f6,#f5f0ff);color:var(--ink);min-height:100vh;padding:18px}
+.app{max-width:980px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{margin:0;font-size:clamp(1.7rem,4vw,2.4rem)} .subtitle{margin:4px 0 0;opacity:.75}
+.pill{background:#fff;border:2px solid var(--pink2);border-radius:999px;padding:10px 15px;font-weight:800}
+.layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{background:rgba(255,255,255,.88);border:2px solid #fff;border-radius:24px;padding:20px;box-shadow:0 8px 25px #9b76951a}
+.card h2{font-size:1.15rem;margin:0 0 14px}
+.pet-card{text-align:center;background:linear-gradient(160deg,#fff,#fff0f6)}
+.pet{font-size:100px;line-height:1.35;filter:drop-shadow(0 7px 3px #e9bad0)}
+.pet-name{font-size:1.15rem;font-weight:900}
+.small{font-size:.9rem;opacity:.75}
+.timer{font-size:clamp(2.6rem,8vw,4rem);font-weight:900;letter-spacing:2px;margin:12px 0}
+button,input,select{font:inherit}
+button{border:0;border-radius:14px;padding:11px 15px;background:var(--pink);color:#513846;font-weight:800;cursor:pointer;transition:transform .1s}
+button:hover{transform:translateY(-1px)}button:disabled{opacity:.5;cursor:not-allowed}
+.secondary{background:var(--pink2)} .lavender{background:#e7e0ff} .green{background:#d8f3e2}
+.controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+label{display:block;font-weight:800;margin:10px 0 6px}
+input,select{width:100%;padding:11px;border:2px solid #f3dce7;border-radius:12px;background:#fff;color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#fff5f9;border-radius:16px;padding:12px;text-align:center}
+.stat strong{display:block;font-size:1.4rem}
+.item-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.item{border:2px solid #f4e1eb;border-radius:16px;padding:12px;text-align:center}
+.item .emoji{font-size:2rem}.item strong{display:block;margin:5px 0}
+.item button{width:100%;margin-top:8px;padding:8px}
+.history{padding-left:20px;margin-bottom:0}.history li{margin:8px 0}
+.notice{margin-top:14px;padding:12px;border-radius:14px;background:#fff5d8;font-size:.9rem}
+footer{text-align:center;padding:20px 0;opacity:.7;font-size:.85rem}
+@media(max-width:680px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}body{padding:12px}.card{padding:17px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div><h1>🐰 Cozy Study Bunny</h1><p class="subtitle">Little study sessions, big cozy rewards.</p></div>
+  <div class="pill">🪙 <span id="coins">0</span> coins</div>
+</header>
+<div class="layout">
+  <section class="card pet-card">
+    <h2>Your study buddy</h2>
+    <div class="pet" id="pet">🐰</div>
+    <div class="pet-name" id="petName">Bunbun</div>
+    <p class="small" id="petMessage">Ready for a little study session?</p>
+    <label for="nameInput" style="text-align:left">Name your bunny</label>
+    <input id="nameInput" maxlength="18" placeholder="Bunbun">
+    <button class="secondary" style="margin-top:8px" id="saveName">Save name</button>
+    <div class="notice">✨ Earn <b>1 coin per completed focus minute</b>, up to 60 coins per session. Coins are only awarded when you finish a session.</div>
+  </section>
+  <section class="card">
+    <h2>⏱️ Focus timer</h2>
+    <label for="subject">What are you studying?</label>
+    <input id="subject" maxlength="40" placeholder="e.g. Physics homework" value="Study session">
+    <label for="duration">Session length</label>
+    <select id="duration">
+      <option value="5">5 minutes — quick start</option>
+      <option value="15">15 minutes</option>
+      <option value="25" selected>25 minutes — Pomodoro</option>
+      <option value="45">45 minutes</option>
+      <option value="60">60 minutes</option>
+    </select>
+    <div class="timer" id="timer">25:00</div>
+    <div class="controls">
+      <button id="start">Start studying</button>
+      <button id="pause" class="secondary" disabled>Pause</button>
+      <button id="reset" class="lavender">Reset</button>
+    </div>
+    <p class="small" id="timerStatus" style="text-align:center">Pick a subject, then start when you're ready.</p>
+  </section>
+  <section class="card">
+    <h2>📊 Your study stats</h2>
+    <div class="stats">
+      <div class="stat"><strong id="todayHours">0m</strong><span class="small">Today</span></div>
+      <div class="stat"><strong id="weekHours">0m</strong><span class="small">This week</span></div>
+      <div class="stat"><strong id="totalHours">0m</strong><span class="small">All time</span></div>
+    </div>
+    <p class="small">Only completed timer minutes are recorded. Your progress is saved in this browser on this device.</p>
+    <h2 style="margin-top:20px">📚 Recent sessions</h2>
+    <ul class="history" id="history"><li class="small">Your completed sessions will appear here.</li></ul>
+  </section>
+  <section class="card">
+    <h2>🎀 Bunny shop</h2>
+    <p class="small">Spend the coins you earn to unlock accessories.</p>
+    <div class="item-list" id="shop"></div>
+  </section>
+</div>
+<footer>A tiny independent study timer prototype • Your study progress stays in this browser.</footer>
+</div>
+<script>
+const STORE = "cozyStudyBunny_v1";
+const catalog = [
+ {id:"bow",name:"Pink bow",emoji:"🎀",price:10},
+ {id:"flower",name:"Flower crown",emoji:"🌸",price:20},
+ {id:"glasses",name:"Smart glasses",emoji:"🤓",price:25},
+ {id:"star",name:"Magic star",emoji:"⭐",price:30},
+ {id:"crown",name:"Royal crown",emoji:"👑",price:50},
+ {id:"heart",name:"Heart aura",emoji:"💖",price:40}
+];
+const fresh = {coins:0,petName:"Bunbun",unlocked:[],equipped:null,sessions:[]};
+let data = load();
+let running=false, paused=false, remaining=25*60, endAt=null, tickHandle=null, sessionStart=null;
+const $ = id => document.getElementById(id);
+function load(){try{return {...fresh,...JSON.parse(localStorage.getItem(STORE)||"{}")}}catch{return {...fresh}}}
+function save(){localStorage.setItem(STORE,JSON.stringify(data));render()}
+function fmtSeconds(s){const m=Math.floor(Math.max(0,s)/60), sec=Math.max(0,s)%60;return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0")}
+function minutesLabel(min){if(min<60)return min+"m";const h=Math.floor(min/60),m=min%60;return h+"h"+(m?" "+m+"m":"")}
+function dayKey(d){return d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()}
+function startOfWeek(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+function stats(){
+ const now=new Date(), today=dayKey(now), week=startOfWeek(now).getTime();
+ const todayM=data.sessions.filter(s=>dayKey(new Date(s.date))===today).reduce((a,s)=>a+s.minutes,0);
+ const weekM=data.sessions.filter(s=>new Date(s.date).getTime()>=week).reduce((a,s)=>a+s.minutes,0);
+ const total=data.sessions.reduce((a,s)=>a+s.minutes,0);
+ return {todayM,weekM,total};
+}
+function render(){
+ $("coins").textContent=data.coins;
+ $("petName").textContent=data.petName||"Bunbun";
+ $("nameInput").value=data.petName||"";
+ const accessory=catalog.find(i=>i.id===data.equipped);
+ $("pet").textContent="🐰"+(accessory?accessory.emoji:"");
+ const s=stats();$("todayHours").textContent=minutesLabel(s.todayM);$("weekHours").textContent=minutesLabel(s.weekM);$("totalHours").textContent=minutesLabel(s.total);
+ const history=$("history");
+ if(!data.sessions.length){history.innerHTML='<li class="small">Your completed sessions will appear here.</li>'}
+ else{history.innerHTML=data.sessions.slice(-5).reverse().map(s=>`<li><b>${escapeHtml(s.subject)}</b> — ${s.minutes} min <span class="small">(${new Date(s.date).toLocaleDateString()})</span></li>`).join("")}
+ $("shop").innerHTML=catalog.map(i=>{
+  const owned=data.unlocked.includes(i.id), equipped=data.equipped===i.id;
+  const label=equipped?"Equipped":owned?"Equip":"Unlock · 🪙 "+i.price;
+  return `<div class="item"><div class="emoji">${i.emoji}</div><strong>${i.name}</strong><span class="small">${i.price} coins</span><button class="${owned?'secondary':''}" data-item="${i.id}" ${equipped?'disabled':''}>${label}</button></div>`;
+ }).join("");
+ document.querySelectorAll("[data-item]").forEach(b=>b.addEventListener("click",()=>buy(b.dataset.item)));
+}
+function escapeHtml(str){return String(str).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function setTimerUI(){
+ $("timer").textContent=fmtSeconds(remaining);
+ $("start").disabled=running&&!paused;
+ $("pause").disabled=!running;
+ $("pause").textContent=paused?"Resume":"Pause";
+}
+function resetTimer(){
+ clearInterval(tickHandle);running=false;paused=false;endAt=null;
+ remaining=Number($("duration").value)*60;setTimerUI();
+ $("timerStatus").textContent="Pick a subject, then start when you're ready.";
+}
+function startTimer(){
+ if(paused){paused=false;running=true;endAt=Date.now()+remaining*1000;$("timerStatus").textContent="You're back! Keep going 💗";runTick();setTimerUI();return}
+ if(running)return;
+ remaining=Number($("duration").value)*60;running=true;paused=false;sessionStart=Date.now();endAt=Date.now()+remaining*1000;
+ $("timerStatus").textContent="Focus time! You can do this 🌷";runTick();setTimerUI();
+}
+function runTick(){
+ clearInterval(tickHandle);
+ tickHandle=setInterval(()=>{
+  remaining=Math.max(0,Math.ceil((endAt-Date.now())/1000));setTimerUI();
+  if(remaining<=0)finishSession();
+ },250);
+}
+function finishSession(){
+ clearInterval(tickHandle);running=false;paused=false;remaining=0;
+ const chosen=Math.min(60,Math.max(1,Number($("duration").value)));
+ const subject=$("subject").value.trim()||"Study session";
+ data.coins+=chosen;
+ data.sessions.push({date:new Date().toISOString(),minutes:Number($("duration").value),subject});
+ data.sessions=data.sessions.slice(-500);
+ save();setTimerUI();
+ $("timerStatus").textContent=`Session complete! +${chosen} coins 🎉`;
+ $("petMessage").textContent="You did amazing! Take a little break 💗";
+}
+function buy(id){
+ const item=catalog.find(i=>i.id===id);if(!item)return;
+ if(data.unlocked.includes(id)){data.equipped=id;save();return}
+ if(data.coins<item.price){$("timerStatus").textContent="You need "+(item.price-data.coins)+" more coins for that item 💕";return}
+ data.coins-=item.price;data.unlocked.push(id);data.equipped=id;save();
+ $("petMessage").textContent="A new accessory! Your bunny looks adorable ✨";
+}
+$("start").addEventListener("click",startTimer);
+$("pause").addEventListener("click",()=>{
+ if(!running)return;
+ if(paused){startTimer()}else{paused=true;running=true;clearInterval(tickHandle);remaining=Math.max(0,Math.ceil((endAt-Date.now())/1000));setTimerUI();$("timerStatus").textContent="Paused — take your time."}
+});
+$("reset").addEventListener("click",resetTimer);
+$("duration").addEventListener("change",()=>{if(!running){remaining=Number($("duration").value)*60;setTimerUI()}});
+$("saveName").addEventListener("click",()=>{data.petName=$("nameInput").value.trim()||"Bunbun";save();$("petMessage").textContent="Hello, "+data.petName+"! Ready to study? 🐰"});
+remaining=Number($("duration").value)*60;render();setTimerUI();
+</script>
+</body>
+</html>
